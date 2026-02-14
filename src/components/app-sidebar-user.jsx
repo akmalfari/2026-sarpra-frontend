@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { LayoutDashboard, DoorOpen, Package } from "lucide-react"
+import { LayoutDashboard, PlusCircle, ClipboardList, LogOut } from "lucide-react"
 
 import {
   Sidebar,
@@ -27,25 +27,31 @@ import {
 } from "@/components/ui/alert-dialog"
 
 const navItems = [
-  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "DataPeminjaman", url: "/admin/ruangan", icon: DoorOpen },
-  { title: "Riwayat Peminjaman", url: "/admin/riwayat-peminjaman", icon: Package },
+  { title: "Dashboard", url: "/user/dashboard", icon: LayoutDashboard },
+  { title: "Buat Peminjaman", url: "/user/create-peminjaman", icon: PlusCircle },
+  { title: "Peminjaman Berlangsung", url: "/user/peminjaman-berlangsung", icon: ClipboardList },
 ]
 
-export function AppSidebar() {
+export default function UserSidebar() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("role")
+    navigate("/login", { replace: true })
+  }
 
   return (
     <Sidebar collapsible="icon" className="border-r">
       <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center font-bold">
-            S
+            U
           </div>
           <div className="leading-tight">
-            <div className="font-semibold">SARPRA Admin</div>
-            <div className="text-xs text-muted-foreground">Manajemen</div>
+            <div className="font-semibold">SARPRA User</div>
+            <div className="text-xs text-muted-foreground">Peminjaman</div>
           </div>
         </div>
       </SidebarHeader>
@@ -57,9 +63,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {navItems.map((item) => {
                 const Icon = item.icon
-                const active =
-                  pathname === item.url ||
-                  (item.url !== "/admin/dashboard" && pathname.startsWith(item.url))
+                const active = pathname === item.url || pathname.startsWith(item.url + "/")
 
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -82,8 +86,9 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <button className="w-full text-left px-3 py-2 rounded-md hover:bg-muted">
-                  Logout
+                <button className="w-full flex items-center gap-2 text-left px-3 py-2 rounded-md hover:bg-muted">
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
                 </button>
               </AlertDialogTrigger>
 
@@ -91,20 +96,13 @@ export function AppSidebar() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action will log you out from the admin panel.
+                    This action will log you out from the user panel.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => {
-                      localStorage.removeItem("token")
-                      navigate("/login", { replace: true })
-                    }}
-                  >
-                    Continue
-                  </AlertDialogAction>
+                  <AlertDialogAction onClick={handleLogout}>Continue</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -114,5 +112,3 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
-
-export default AppSidebar
