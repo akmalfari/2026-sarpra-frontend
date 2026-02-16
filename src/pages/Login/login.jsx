@@ -9,15 +9,36 @@ export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
+  const [error, setError] = React.useState("")
+
+  // mock users
+  const mockUsers = [
+    { email: "admin@example.com", password: "admin123", role: "admin" },
+    { email: "user@example.com", password: "user123", role: "user" },
+  ]
 
   const onSubmit = (e) => {
     e.preventDefault()
 
-    // dummy: anggap login sukses
-    localStorage.setItem("token", "dummy-token")
+    const found = mockUsers.find(
+      (u) => u.email === email.trim().toLowerCase() && u.password === password
+    )
 
-    // arahkan ke dashboard admin
-    navigate("/admin/dashboard", { replace: true })
+    if (!found) {
+      setError("Invalid email or password")
+      return
+    }
+
+    // simpan token dan role (mock)
+    localStorage.setItem("token", "mock-token-" + found.role)
+    localStorage.setItem("role", found.role)
+
+    // arahkan berdasarkan role
+    if (found.role === "admin") {
+      navigate("/admin/dashboard", { replace: true })
+    } else {
+      navigate("/user/dashboard", { replace: true })
+    }
   }
 
   return (
@@ -61,6 +82,11 @@ export default function Login() {
                 <Button type="submit" className="w-full">
                   Sign In
                 </Button>
+                {error && (
+                  <p className="text-sm text-red-600 mt-2" role="alert">
+                    {error}
+                  </p>
+                )}
               </form>
             </CardContent>
           </Card>
