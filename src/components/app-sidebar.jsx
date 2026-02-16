@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { LayoutDashboard, DoorOpen, Package } from "lucide-react"
+import { LayoutDashboard, DoorOpen, Package, PlusSquare, List } from "lucide-react"
 
 import {
   Sidebar,
@@ -28,8 +28,10 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "DataPeminjaman", url: "/admin/ruangan", icon: DoorOpen },
+  { title: "DataPeminjaman", url: "/admin/peminjaman", icon: DoorOpen },
   { title: "Riwayat Peminjaman", url: "/admin/riwayat-peminjaman", icon: Package },
+  { title: "Create Ruangan", url: "/admin/create-ruangan", icon: PlusSquare },
+  { title: "Data Ruangan", url: "/admin/data-ruangan", icon: List },
 ]
 
 export function AppSidebar() {

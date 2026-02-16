@@ -105,7 +105,7 @@ export default function CreatePeminjaman() {
   }
 
   return (
-    <Card className="max-w-3xl">
+    <Card className="max-w-full">
       <CardHeader>
         <CardTitle>Buat Peminjaman</CardTitle>
       </CardHeader>

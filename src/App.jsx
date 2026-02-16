@@ -1,15 +1,23 @@
 import * as React from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 
+
 import AdminLayout from "./layouts/AdminLayout"
 import UserLayout from "./layouts/UserLayout"
 
 import Login from "./pages/Login/login"
 
 import Dashboard from "./pages/admin/Dashboard"
-import DataRuangan from "./pages/admin/DataRuangan"
+import DataRuangan from "./pages/admin/DataRuanganAdmin"
 import DetailPeminjaman from "./pages/admin/DetailPeminjaman"
 import RiwayatPeminjaman from "./pages/admin/RiwayatPeminjaman"
+import CreateRuangan from "./pages/admin/CreateRuangan";
+import DataPeminjaman from "./pages/admin/DataPeminjaman"
+import DataRuanganAdmin from "./pages/admin/DataRuanganAdmin"
+
+
+
+
 
 import DashboardUser from "./pages/User/DashboardUser"
 import CreatePeminjaman from "./pages/User/CreatePeminjaman"
@@ -23,11 +31,17 @@ export default function App() {
       <Route path="/login" element={<Login />} />
 
       <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="ruangan" element={<DataRuangan />} />
+        <Route path="peminjaman" element={<DataPeminjaman />} />
         <Route path="riwayat-peminjaman" element={<RiwayatPeminjaman />} />
         <Route path="detail/:id" element={<DetailPeminjaman />} />
+        <Route path="create-ruangan" element={<CreateRuangan />} />
+        <Route path="data-ruangan" element={<DataRuanganAdmin />} />
+      </Route>
+
+
       </Route>
 
       <Route path="/user" element={<UserLayout />}>

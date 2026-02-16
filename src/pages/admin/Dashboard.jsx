@@ -45,7 +45,7 @@ export default function Dashboard() {
   }, [rows, q])
 
   return (
-    <div className="space-y-6">
+    <div className="w-full">
       <div className="rounded-xl border bg-card p-6">
         <div className="text-xl font-semibold">Dashboard SARPRA</div>
         <div className="mt-2 text-sm text-muted-foreground">Selamat datang di SARPRA Admin.</div>
