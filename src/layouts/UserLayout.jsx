@@ -1,16 +1,14 @@
-import { Outlet } from "react-router-dom"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import UserSidebar from "@/components/app-sidebar-user"
+import { Outlet } from "react-router-dom";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebarUser } from "@/components/app-sidebar-user";
 
 export default function UserLayout() {
   return (
     <SidebarProvider>
-      <UserSidebar />
-      <SidebarInset>
-        <div className="min-h-screen">
-          <Outlet />
-        </div>
+      <AppSidebarUser />
+      <SidebarInset className="p-6">
+        <Outlet />
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

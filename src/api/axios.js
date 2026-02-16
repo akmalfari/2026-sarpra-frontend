@@ -1,14 +1,18 @@
 import axios from "axios";
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-});
+const rawBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5218";
+// pastikan baseURL selalu berakhir .../api (tanpa double slash)
+const baseURL = rawBase.replace(/\/+$/, "") + "/api";
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+const api = axios.create({ baseURL });
+
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const msg = err?.response?.data || err?.message;
+    console.error("API Error:", msg);
+    return Promise.reject(err);
   }
-  return config;
-});
-console.log("BASE API:", import.meta.env.VITE_API_BASE_URL);
+);
+
+export default api;

@@ -1,5 +1,6 @@
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { LayoutDashboard, PlusCircle, ClipboardList, LogOut } from "lucide-react"
+import * as React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LayoutDashboard, PlusCircle, Clock, DoorOpen, LogOut } from "lucide-react";
 
 import {
   Sidebar,
@@ -12,7 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 import {
   AlertDialog,
@@ -24,29 +25,29 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 const navItems = [
   { title: "Dashboard", url: "/user/dashboard", icon: LayoutDashboard },
-  { title: "Buat Peminjaman", url: "/user/create-peminjaman", icon: PlusCircle },
-  { title: "Peminjaman Berlangsung", url: "/user/peminjaman-berlangsung", icon: ClipboardList },
-]
+  { title: "Buat Peminjaman", url: "/user/buat-peminjaman", icon: PlusCircle },
+  { title: "Peminjaman Berlangsung", url: "/user/peminjaman-berlangsung", icon: Clock },
+  { title: "Ruangan Tersedia", url: "/user/ruangan-tersedia", icon: DoorOpen },
+];
 
-export default function UserSidebar() {
-  const { pathname } = useLocation()
-  const navigate = useNavigate()
+export function AppSidebarUser() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("role")
-    navigate("/login", { replace: true })
+  function handleLogout() {
+    localStorage.removeItem("role");
+    navigate("/login");
   }
 
   return (
-    <Sidebar collapsible="icon" className="border-r">
+    <Sidebar collapsible="none">
       <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center font-bold">
+          <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center font-semibold">
             U
           </div>
           <div className="leading-tight">
@@ -61,54 +62,41 @@ export default function UserSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
-                const Icon = item.icon
-                const active = pathname === item.url || pathname.startsWith(item.url + "/")
-
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-                      <Link to={item.url}>
-                        <Icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button className="w-full flex items-center gap-2 text-left px-3 py-2 rounded-md hover:bg-muted">
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </button>
-              </AlertDialogTrigger>
-
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action will log you out from the user panel.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleLogout}>Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="p-3">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-muted">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Logout?</AlertDialogTitle>
+              <AlertDialogDescription>Kamu yakin ingin keluar?</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout}>Ya, logout</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

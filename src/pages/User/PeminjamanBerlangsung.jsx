@@ -1,26 +1,86 @@
-import { useMemo, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useEffect, useMemo, useState } from "react";
+import api from "@/lib/api";
 
-const dummy = [
-  { id: 31, nama_ruangan: "Aula", keperluan: "Rapat", tanggal: "2026-02-13", jam: "13:00 - 15:00", status: "disetujui" },
-  { id: 32, nama_ruangan: "Lab Komputer 2", keperluan: "Praktikum", tanggal: "2026-02-14", jam: "08:00 - 10:00", status: "disetujui" },
-  { id: 33, nama_ruangan: "D4", keperluan: "Kuliah", tanggal: "2026-02-12", jam: "09:00 - 11:00", status: "ditolak" },
-]
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+function normalizeArray(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (payload?.data && Array.isArray(payload.data)) return payload.data;
+  if (payload?.items && Array.isArray(payload.items)) return payload.items;
+  return [];
+}
+
+function statusLabel(s) {
+  const v = (s || "").toLowerCase();
+  if (v.includes("setuju")) return "disetujui";
+  if (v.includes("tolak")) return "ditolak";
+  return "menunggu";
+}
+
+function statusClass(s) {
+  const v = statusLabel(s);
+  if (v === "disetujui") return "text-green-600";
+  if (v === "ditolak") return "text-red-600";
+  return "text-muted-foreground";
+}
 
 export default function PeminjamanBerlangsung() {
-  const [q, setQ] = useState("")
+  const [rows, setRows] = useState([]);
+  const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState("menunggu");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const rows = useMemo(() => {
-    const query = q.trim().toLowerCase()
-    return dummy
-      .filter((x) => x.status === "disetujui")
-      .filter((x) => {
-        if (!query) return true
-        return `${x.nama_ruangan} ${x.keperluan} ${x.tanggal}`.toLowerCase().includes(query)
+  useEffect(() => {
+    let alive = true;
+
+    async function load() {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await api.get("/api/PeminjamanRuangan");
+        const arr = normalizeArray(res.data);
+
+        if (!alive) return;
+        setRows(arr);
+      } catch (e) {
+        if (!alive) return;
+        setError("Gagal memuat data dari backend.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+
+    return rows
+      .filter((r) => {
+        const status = statusLabel(r.status);
+        const matchStatus = statusFilter === "semua" ? true : status === statusFilter;
+
+        const ruangan = (r.namaRuangan || "").toLowerCase();
+        const keperluan = (r.keperluan || "").toLowerCase();
+        const tanggal = String(r.tanggalPeminjaman || "").toLowerCase();
+
+        const matchQuery =
+          !query ||
+          ruangan.includes(query) ||
+          keperluan.includes(query) ||
+          tanggal.includes(query);
+
+        return matchStatus && matchQuery;
       })
-  }, [q])
+      .sort((a, b) => (String(b.tanggalPeminjaman || "") > String(a.tanggalPeminjaman || "") ? 1 : -1));
+  }, [rows, q, statusFilter]);
 
   return (
     <div className="grid gap-6">
@@ -29,51 +89,75 @@ export default function PeminjamanBerlangsung() {
           <CardTitle>Peminjaman Berlangsung</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Menampilkan peminjaman yang sudah disetujui (dummy).
+          Pantau peminjaman kamu berdasarkan status.
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Daftar</CardTitle>
+          <CardTitle>Daftar Peminjaman</CardTitle>
         </CardHeader>
-
         <CardContent className="grid gap-4">
-          <Input
-            placeholder="Search: ruangan / keperluan / tanggal"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search: ruangan / keperluan / tanggal"
+              className="md:col-span-2"
+            />
+            <select
+              className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="semua">Semua status</option>
+              <option value="menunggu">menunggu</option>
+              <option value="disetujui">disetujui</option>
+              <option value="ditolak">ditolak</option>
+            </select>
+          </div>
 
-          <div className="rounded-md border">
+          {error ? <div className="text-sm text-red-600">{error}</div> : null}
+
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
+                  <TableHead className="w-[80px]">ID</TableHead>
                   <TableHead>Ruangan</TableHead>
                   <TableHead>Keperluan</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Jam</TableHead>
+                  <TableHead className="w-[140px]">Tanggal</TableHead>
+                  <TableHead className="w-[160px]">Jam</TableHead>
+                  <TableHead className="w-[120px]">Status</TableHead>
                 </TableRow>
               </TableHeader>
-
               <TableBody>
-                {rows.map((x) => (
-                  <TableRow key={x.id}>
-                    <TableCell className="font-medium">{x.id}</TableCell>
-                    <TableCell>{x.nama_ruangan}</TableCell>
-                    <TableCell>{x.keperluan}</TableCell>
-                    <TableCell>{x.tanggal}</TableCell>
-                    <TableCell>{x.jam}</TableCell>
-                  </TableRow>
-                ))}
-
-                {rows.length === 0 && (
+                {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-sm text-muted-foreground">
-                      Tidak ada peminjaman berlangsung.
+                    <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                      Loading...
                     </TableCell>
                   </TableRow>
+                ) : filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                      Tidak ada data.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filtered.map((r) => {
+                    const jam = `${r.jamMulai || "-"} - ${r.jamSelesai || "-"}`;
+                    return (
+                      <TableRow key={r.id}>
+                        <TableCell className="font-medium">{r.id}</TableCell>
+                        <TableCell>{r.namaRuangan}</TableCell>
+                        <TableCell>{r.keperluan}</TableCell>
+                        <TableCell>{String(r.tanggalPeminjaman || "").slice(0, 10)}</TableCell>
+                        <TableCell>{jam}</TableCell>
+                        <TableCell className={statusClass(r.status)}>{statusLabel(r.status)}</TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -81,5 +165,5 @@ export default function PeminjamanBerlangsung() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
