@@ -1,37 +1,35 @@
-# SARPRA Backend
+# SARPRA Frontend
 
 ## Description
 
-Backend API untuk sistem manajemen peminjaman ruangan (SARPRA) menggunakan ASP.NET Core Web API dan MySQL.
+Frontend untuk sistem peminjaman ruangan (SARPRA) menggunakan React + Vite dan terintegrasi dengan backend ASP.NET Core Web API.
 
 ---
 
 ## Features
 
-- Buat data ruangan
-- Lihat daftar ruangan
-- Update ruangan
-- Hapus ruangan
-- Buat peminjaman ruangan
-- Lihat daftar peminjaman
-- Validasi jadwal bentrok
-- Update status peminjaman
-- Hapus peminjaman
+- Dashboard Admin & User
+- Lihat data ruangan
+- Form peminjaman ruangan
+- Dropdown nama ruangan (dinamis dari API)
+- Riwayat peminjaman
+- Validasi jadwal bentrok (dari backend)
 
 ---
 
 ## Tech Stack
 
-- ASP.NET Core 8
-- Entity Framework Core
-- MySQL
-- Swagger (OpenAPI)
+- React
+- Vite
+- Axios
+- React Router
+- Tailwind CSS
+- ShadCN UI
 
 ---
 
 ## Installation
 
 ```bash
-dotnet restore
-dotnet build
-dotnet run
+npm install
+npm run dev
